@@ -1,0 +1,9 @@
+- hosts: all
+  tasks:
+    - name: Install ~/.ssh/authorized_keys
+      ansible.posix.authorized_key:
+        user: "{{ lookup('env', 'USER') }}"
+        state: present
+        key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+# sudo apt install yaml-mode
