@@ -1,0 +1,8 @@
+# Python virtual environments
+venv/
+
+# Emacs backups
+*~
+
+# API keys and the like
+/secrets
