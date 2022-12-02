@@ -10,6 +10,7 @@ Initial setup::
   cd ansible-machine-setup
   python3 -m venv venv
   . venv/bin/activate
+  pip install -r requirements.txt
   ansible-playbook main.yml
 
 To do
