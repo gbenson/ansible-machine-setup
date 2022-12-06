@@ -4,6 +4,8 @@
       ansible.posix.authorized_key:
         user: "{{ lookup('env', 'USER') }}"
         state: present
-        key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+        key: >
+          {{ lookup('url', 'https://github.com/gbenson.keys') }}
+          {{ lookup('env', 'USER') }}@inauspicious.org
 
 # sudo apt install yaml-mode
