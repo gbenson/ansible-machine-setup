@@ -14,6 +14,7 @@
       become: yes
       ansible.builtin.apt:
         pkg:
+          - docker.io
           - emacs-gtk
           - git
           - openssh-server
@@ -27,3 +28,10 @@
         dest: ~/.gitconfig
         mode: "0644"
         backup: yes
+
+    - name: Configure Docker
+      become: yes
+      ansible.builtin.user:
+        name: "{{ lookup('env', 'USER') }}"
+        groups: docker
+        append: yes
