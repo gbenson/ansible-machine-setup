@@ -1,6 +1,15 @@
 ---
 - hosts: all
+  vars:
+    dpkg_architecture: "amd64"  # XXX $(dpkg --print-architecture)
+    docker_repo_url: "https://download.docker.com/linux/ubuntu"
+    docker_keyring_path: "/etc/apt/trusted.gpg.d/docker-keyring.asc"
+    docker_sources_path: "/etc/apt/sources.list.d/docker.list"
+
   tasks:
+    #- debug:
+    #    var: ansible_facts
+
     - name: Install ~/.ssh/authorized_keys
       when: 0>1
       ansible.posix.authorized_key:
@@ -10,17 +19,52 @@
           {{ lookup('url', 'https://github.com/gbenson.keys') }}
           {{ lookup('env', 'USER') }}@inauspicious.org
 
+    - name: Uninstall problem packages
+      become: yes
+      ansible.builtin.apt:
+        name: docker.io
+        state: absent
+      when: ansible_facts["distribution"] == "Ubuntu"
+      # XXX or "os_family": "Debian",
+      # XXX or "pkg_mgr": "apt",
+
+    - name: Add Docker CE APT signing key
+      become: yes
+      ansible.builtin.get_url:
+        url: "{{ docker_repo_url }}/gpg"
+        dest: "{{ docker_keyring_path }}"
+      when: ansible_facts["distribution"] == "Ubuntu"
+
+    - name: Add Docker CE APT repository
+      become: yes
+      ansible.builtin.apt_repository:
+        repo: >
+          deb [arch={{ dpkg_architecture }}
+          signed-by={{ docker_keyring_path }}]
+          {{ docker_repo_url }}
+          {{ ansible_distribution_release }}
+          stable
+        state: present
+        filename: docker
+      when: ansible_facts["distribution"] == "Ubuntu"
+
+    - name: Install Docker CE
+      become: yes
+      ansible.builtin.apt:
+        name: docker-ce
+      when: ansible_facts["distribution"] == "Ubuntu"
+
     - name: Install packages
       become: yes
       ansible.builtin.apt:
         pkg:
-          - docker.io
           - emacs-gtk
           - git
           - openssh-server
           - python3-dev
           - python3-venv
           - yaml-mode
+      when: ansible_facts["os_family"] == "Debian"
 
     - name: Configure git
       ansible.builtin.copy:
