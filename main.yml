@@ -18,3 +18,10 @@
         - openssh-server
         - python3-venv
         - yaml-mode
+
+    - name: Configure git
+      ansible.builtin.copy:
+        src: dotfiles/gitconfig
+        dest: ~/.gitconfig
+        mode: '0644'
+        backup: yes

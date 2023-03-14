@@ -1,0 +1,16 @@
+[user]
+	name = Gary Benson
+	email = gary@gbenson.net
+[alias]
+	ci = commit
+	co = checkout
+	di = diff
+	st = status
+	stat = status
+	br = branch
+[log]
+	abbrevCommit = true
+[push]
+	default = matching
+[init]
+	defaultBranch = main
