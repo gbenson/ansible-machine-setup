@@ -1,3 +1,4 @@
+---
 - hosts: all
   tasks:
     - name: Install ~/.ssh/authorized_keys
@@ -13,15 +14,15 @@
       become: yes
       ansible.builtin.apt:
         pkg:
-        - emacs-gtk
-        - git
-        - openssh-server
-        - python3-venv
-        - yaml-mode
+          - emacs-gtk
+          - git
+          - openssh-server
+          - python3-venv
+          - yaml-mode
 
     - name: Configure git
       ansible.builtin.copy:
         src: dotfiles/gitconfig
         dest: ~/.gitconfig
-        mode: '0644'
+        mode: "0644"
         backup: yes
