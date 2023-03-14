@@ -1,11 +1,10 @@
 - hosts: all
   tasks:
     - name: Install ~/.ssh/authorized_keys
+      when: 0>1
       ansible.posix.authorized_key:
         user: "{{ lookup('env', 'USER') }}"
         state: present
         key: >
           {{ lookup('url', 'https://github.com/gbenson.keys') }}
           {{ lookup('env', 'USER') }}@inauspicious.org
-
-# sudo apt install yaml-mode
