@@ -8,3 +8,13 @@
         key: >
           {{ lookup('url', 'https://github.com/gbenson.keys') }}
           {{ lookup('env', 'USER') }}@inauspicious.org
+
+    - name: Install packages
+      become: yes
+      ansible.builtin.apt:
+        pkg:
+        - emacs-gtk
+        - git
+        - openssh-server
+        - python3-venv
+        - yaml-mode
