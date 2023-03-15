@@ -56,6 +56,23 @@
           - docker-compose-plugin
       when: ansible_facts["distribution"] == "Ubuntu"
 
+    - name: Add Chrome APT repository
+      become: yes
+      ansible.builtin.apt_repository:
+        repo: >
+          deb [arch={{ dpkg_architecture }}]
+          https://dl.google.com/linux/chrome/deb/
+          stable main
+        state: present
+        filename: google-chrome
+      when: ansible_facts["distribution"] == "Ubuntu"
+
+    - name: Install Chrome
+      become: yes
+      ansible.builtin.apt:
+        name: google-chrome-stable
+      when: ansible_facts["distribution"] == "Ubuntu"
+
     - name: Install packages
       become: yes
       ansible.builtin.apt:
