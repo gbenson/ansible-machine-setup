@@ -11,13 +11,13 @@
     #    var: ansible_facts
 
     - name: Install ~/.ssh/authorized_keys
-      when: 0>1
       ansible.posix.authorized_key:
         user: "{{ lookup('env', 'USER') }}"
         state: present
         key: >
-          {{ lookup('url', 'https://github.com/gbenson.keys') }}
-          {{ lookup('env', 'USER') }}@inauspicious.org
+          {{ lookup('url',
+          'https://github.com/gbenson.keys',
+          split_lines=False) }}
 
     - name: Uninstall problem packages
       become: yes
