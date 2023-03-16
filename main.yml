@@ -100,3 +100,14 @@
         name: "{{ lookup('env', 'USER') }}"
         groups: docker
         append: yes
+
+    - name: Configure Emacs
+      ansible.builtin.git:
+        repo: git@github.com:gbenson/emacs-config.git
+        dest: ~/.emacs.config
+
+    - name: Install ~/.emacs
+      ansible.builtin.file:
+        src: .emacs.config/dot.emacs
+        dest: ~/.emacs
+        state: link
