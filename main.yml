@@ -118,3 +118,16 @@
         src: .emacs.config/dot.emacs
         dest: ~/.emacs
         state: link
+
+    - name: Enable core deb-src repos
+      become: yes
+      ansible.builtin.lineinfile:
+        path: /etc/apt/sources.list
+        regexp: ^# (deb-src .* {{ item }} main restricted)$
+        line: \g<1>
+        backrefs: yes
+      loop:
+        - "{{ ansible_distribution_release }}"
+        - "{{ ansible_distribution_release }}-updates"
+        - "{{ ansible_distribution_release }}-security"
+      when: ansible_facts["distribution"] == "Ubuntu"
