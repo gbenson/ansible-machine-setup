@@ -87,6 +87,13 @@
           - yaml-mode
       when: ansible_facts["os_family"] == "Debian"
 
+    - name: Install Ubuntu-specific packages
+      become: yes
+      ansible.builtin.apt:
+        pkg:
+          - apport-retrace
+      when: ansible_facts["distribution"] == "Ubuntu"
+
     - name: Configure git
       ansible.builtin.copy:
         src: dotfiles/gitconfig
