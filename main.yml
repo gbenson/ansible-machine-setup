@@ -119,6 +119,19 @@
         dest: ~/.emacs
         state: link
 
+    - name: Configure GDB+debuginfod
+      block:
+        - name: Export DEBUGINFOD_URLS
+          ansible.builtin.lineinfile:
+            path: ~/.profile
+            line: export DEBUGINFOD_URLS="https://debuginfod.ubuntu.com"
+
+        - name: Enable debuginfod in ~/.gdbinit
+          ansible.builtin.lineinfile:
+            path: ~/.gdbinit
+            line: set debuginfod enabled on
+      when: ansible_facts["distribution"] == "Ubuntu"
+
     - name: Enable core deb-src repos
       become: yes
       ansible.builtin.lineinfile:
