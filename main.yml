@@ -84,6 +84,7 @@
           - git
           - openssh-server
           - nmap
+          - python2
           - python3-dev
           - python3-venv
           - yaml-mode
