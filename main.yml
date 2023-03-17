@@ -5,6 +5,8 @@
     docker_repo_url: "https://download.docker.com/linux/ubuntu"
     docker_keyring_path: "/etc/apt/trusted.gpg.d/docker-keyring.asc"
     docker_sources_path: "/etc/apt/sources.list.d/docker.list"
+    cache_dir: ~/.cache/gbenson/ansible-machine-setup
+    fonts_dir: ~/.local/share/fonts
 
   tasks:
     #- debug:
@@ -144,3 +146,35 @@
         - "{{ ansible_distribution_release }}-updates"
         - "{{ ansible_distribution_release }}-security"
       when: ansible_facts["distribution"] == "Ubuntu"
+
+    - name: Check if Lexend font exists
+      ansible.builtin.stat:
+        path: "{{ fonts_dir }}/Lexend-VariableFont_wght.ttf"
+      register: lexend_ttf
+
+    - block:
+        - name: Ensure cache directory exists
+          ansible.builtin.file:
+            path: "{{ cache_dir }}"
+            state: directory
+            mode: "0700"
+
+        - name: Download Lexend
+          ansible.builtin.get_url:
+            url: https://fonts.google.com/download?family=Lexend
+            dest: "{{ cache_dir }}/lexend.zip"
+
+        - name: Ensure fonts directory exists
+          ansible.builtin.file:
+            path: "{{ fonts_dir }}"
+            state: directory
+            mode: "0755"
+
+        - name: Extract Lexend variable-weight font
+          ansible.builtin.unarchive:
+            src: "{{ cache_dir }}/lexend.zip"
+            dest: "{{ fonts_dir }}"
+            include: Lexend-VariableFont_wght.ttf
+      when: >
+        ansible_facts["distribution"] == "Ubuntu"
+        and not lexend_ttf.stat.exists
