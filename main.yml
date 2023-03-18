@@ -8,6 +8,7 @@
     google_keyring_path: "/etc/apt/trusted.gpg.d/google-keyring.asc"
     cache_dir: ~/.cache/gbenson/ansible-machine-setup
     fonts_dir: ~/.local/share/fonts
+    tic80_desktop_file: /usr/local/share/applications/tic80.desktop
 
   tasks:
     #- debug:
@@ -203,3 +204,16 @@
           - libglvnd-dev
           - ruby-full
       when: ansible_facts["nodename"] == "molly"
+
+    - name: Check whether TIC-80 is installed
+      ansible.builtin.stat:
+        path: "{{ tic80_desktop_file }}"
+      register: tic80_desktop
+
+    - name: Make TIC-80 fullscreen by default
+      become: yes
+      ansible.builtin.lineinfile:
+        path: "{{ tic80_desktop_file }}"
+        regexp: ^Exec=
+        line: Exec=tic80 --fullscreen %U
+      when: tic80_desktop.stat.exists
