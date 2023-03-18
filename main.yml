@@ -190,3 +190,16 @@
       when: >
         ansible_facts["distribution"] == "Ubuntu"
         and not lexend_ttf.stat.exists
+
+    - name: Install TIC-80 build requirements
+      become: yes
+      ansible.builtin.apt:
+        pkg:
+          - cmake
+          - freeglut3-dev
+          - g++
+          - libasound2-dev
+          - libglu1-mesa-dev
+          - libglvnd-dev
+          - ruby-full
+      when: ansible_facts["nodename"] == "molly"
