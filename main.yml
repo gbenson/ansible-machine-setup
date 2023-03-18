@@ -143,6 +143,7 @@
           ansible.builtin.lineinfile:
             path: ~/.gdbinit
             line: set debuginfod enabled on
+            create: yes
       when: ansible_facts["distribution"] == "Ubuntu"
 
     - name: Enable core deb-src repos
