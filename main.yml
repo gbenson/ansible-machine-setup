@@ -5,6 +5,7 @@
     docker_repo_url: "https://download.docker.com/linux/ubuntu"
     docker_keyring_path: "/etc/apt/trusted.gpg.d/docker-keyring.asc"
     docker_sources_path: "/etc/apt/sources.list.d/docker.list"
+    google_keyring_path: "/etc/apt/trusted.gpg.d/google-keyring.asc"
     cache_dir: ~/.cache/gbenson/ansible-machine-setup
     fonts_dir: ~/.local/share/fonts
 
@@ -30,7 +31,7 @@
       # XXX or "os_family": "Debian",
       # XXX or "pkg_mgr": "apt",
 
-    - name: Add Docker CE APT signing key
+    - name: Add Docker package signing key
       become: yes
       ansible.builtin.get_url:
         url: "{{ docker_repo_url }}/gpg"
@@ -58,11 +59,19 @@
           - docker-compose-plugin
       when: ansible_facts["distribution"] == "Ubuntu"
 
+    - name: Add Chrome package signing key
+      become: yes
+      ansible.builtin.get_url:
+        url: https://dl.google.com/linux/linux_signing_key.pub
+        dest: "{{ google_keyring_path }}"
+      when: ansible_facts["distribution"] == "Ubuntu"
+
     - name: Add Chrome APT repository
       become: yes
       ansible.builtin.apt_repository:
         repo: >
-          deb [arch={{ dpkg_architecture }}]
+          deb [arch={{ dpkg_architecture }}
+          signed-by={{ google_keyring_path }}]
           https://dl.google.com/linux/chrome/deb/
           stable main
         state: present
