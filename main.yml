@@ -219,3 +219,18 @@
         regexp: ^Exec=
         line: Exec=tic80 --fullscreen %U
       when: tic80_desktop.stat.exists
+
+    - name: Install b2 build requirements
+      become: yes
+      ansible.builtin.apt:
+        pkg:
+          - libcurl4-openssl-dev
+          - libgl1-mesa-dev
+          - libglvnd-dev
+          - libgtk2.0-dev
+          - libpulse-dev
+          - uuid-dev
+          - libsdl2-dev
+          - libuv1-dev
+          - ninja-build
+      when: ansible_facts["nodename"] == "molly"
