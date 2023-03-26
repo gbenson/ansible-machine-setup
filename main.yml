@@ -6,6 +6,7 @@
     docker_keyring_path: "/etc/apt/trusted.gpg.d/docker-keyring.asc"
     docker_sources_path: "/etc/apt/sources.list.d/docker.list"
     google_keyring_path: "/etc/apt/trusted.gpg.d/google-keyring.asc"
+    winehq_keyring_path: "/etc/apt/trusted.gpg.d/winehq-keyring.asc"
     cache_dir: ~/.cache/gbenson/ansible-machine-setup
     fonts_dir: ~/.local/share/fonts
     tic80_desktop_file: /usr/local/share/applications/tic80.desktop
@@ -236,3 +237,37 @@
           - libuv1-dev
           - ninja-build
       when: ansible_facts["nodename"] == "molly"
+
+    - block:
+        - name: Enable 32-bit architecture
+          become: yes
+          ansible.builtin.lineinfile:
+            path: /var/lib/dpkg/arch
+            line: "i386"
+            create: yes
+
+        - name: Add Wine package signing key
+          become: yes
+          ansible.builtin.get_url:
+            url: https://dl.winehq.org/wine-builds/winehq.key
+            dest: "{{ winehq_keyring_path }}"
+
+        - name: Add Wine APT repository
+          become: yes
+          ansible.builtin.apt_repository:
+            repo: >
+              deb [arch={{ dpkg_architecture }}
+              signed-by={{ winehq_keyring_path }}]
+              https://dl.winehq.org/wine-builds/debian
+              bullseye main
+            state: present
+            filename: winehq-bullseye
+
+        - name: Install Wine
+          become: yes
+          ansible.builtin.apt:
+            pkg:
+              - wine
+              - wine32
+
+      when: ansible_facts["nodename"] == "penguin"
