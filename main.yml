@@ -112,6 +112,17 @@
           - gnome-tweaks
       when: ansible_facts["distribution"] == "Ubuntu"
 
+    - name: Configure grep
+      ansible.builtin.lineinfile:
+        path: ~/.bash_aliases
+        regexp: ^alias\s+grep=
+        line: >-
+          alias grep='grep
+          --color=auto
+          --binary-files=without-match
+          --exclude-dir=.git'
+        create: yes
+
     - name: Configure git
       ansible.builtin.copy:
         src: dotfiles/gitconfig
