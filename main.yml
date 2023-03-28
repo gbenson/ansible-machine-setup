@@ -94,6 +94,8 @@
           - git
           - gobuster
           - hydra
+          - elpa-lua-mode
+          - elpa-yaml-mode
           - openssh-server
           - nmap
           - python2
@@ -101,7 +103,6 @@
           - python3-venv
           - ruby-dev
           - ruby-rubygems
-          - yaml-mode
       when: ansible_facts["os_family"] == "Debian"
 
     - name: Install Ubuntu-specific packages
