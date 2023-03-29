@@ -121,7 +121,8 @@
           alias grep='grep
           --color=auto
           --binary-files=without-match
-          --exclude-dir=.git'
+          --exclude-dir=.git
+          --exclude-dir=pdoc'
         create: yes
 
     - name: Configure git
