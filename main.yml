@@ -96,13 +96,15 @@
           - hydra
           - elpa-lua-mode
           - elpa-yaml-mode
-          - openssh-server
+          - mysql-client
           - nmap
+          - openssh-server
           - python2
           - python3-dev
           - python3-venv
           - ruby-dev
           - ruby-rubygems
+          - whois
       when: ansible_facts["os_family"] == "Debian"
 
     - name: Install Ubuntu-specific packages
