@@ -96,6 +96,7 @@
           - hydra
           - elpa-lua-mode
           - elpa-yaml-mode
+          - moreutils
           - nmap
           - openssh-server
           - python2
