@@ -90,13 +90,13 @@
       ansible.builtin.apt:
         pkg:
           - curl
+          - default-mysql-client
           - emacs-gtk
           - git
           - gobuster
           - hydra
           - elpa-lua-mode
           - elpa-yaml-mode
-          - mysql-client
           - nmap
           - openssh-server
           - python2
