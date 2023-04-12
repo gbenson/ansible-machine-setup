@@ -90,7 +90,6 @@
       ansible.builtin.apt:
         pkg:
           - curl
-          - default-mysql-client
           - emacs-gtk
           - git
           - gobuster
@@ -107,12 +106,20 @@
           - whois
       when: ansible_facts["os_family"] == "Debian"
 
+    - name: Install Debian-specific packages
+      become: yes
+      ansible.builtin.apt:
+        pkg:
+          - default-mysql-client
+      when: ansible_facts["distribution"] == "Debian"
+
     - name: Install Ubuntu-specific packages
       become: yes
       ansible.builtin.apt:
         pkg:
           - apport-retrace
           - gnome-tweaks
+          - mysql-client
       when: ansible_facts["distribution"] == "Ubuntu"
 
     - name: Configure grep
