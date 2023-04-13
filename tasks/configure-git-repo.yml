@@ -1,0 +1,27 @@
+---
+- name: Check if this .git/config is a work one
+  ansible.builtin.command:
+    argv:
+      - grep
+      - -l
+      - "{{ ansible_facts['env']['GBENSON_WORK_GIT'] }}"
+      - "{{ item.path }}/config"
+  register: grep
+  changed_when: False
+  failed_when:
+    - grep.rc != 0
+    - grep.rc != 1
+
+- name: Insert the [user] section if not present
+  ansible.builtin.lineinfile:
+    path: "{{ grep.stdout_lines[0] }}"
+    line: "[user]"
+  when: grep.rc == 0
+
+- name: Insert my work email if not present
+  ansible.builtin.lineinfile:
+    path: "{{ grep.stdout_lines[0] }}"
+    regexp: ^\s*email\s*=
+    line: "\temail = {{ ansible_facts['env']['GBENSON_WORK_EMAIL'] }}"
+    insertafter: "[user]"
+  when: grep.rc == 0

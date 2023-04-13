@@ -259,3 +259,21 @@
           - libuv1-dev
           - ninja-build
       when: ansible_facts["nodename"] == "molly"
+
+    - block:
+        - name: Find git repositories
+          ansible.builtin.find:
+            paths: ~/projects
+            file_type: directory
+            patterns: .git
+            recurse: yes
+            hidden: yes
+            depth: 2
+          register: git_repos
+
+        - name: Configure git repositories
+          include_tasks: "tasks/configure-git-repo.yml"
+          loop: "{{ git_repos.files|flatten(levels=1) }}"
+          loop_control:
+            label: "{{ item.path|dirname }}"
+      when: "'GBENSON_WORK_GIT' in ansible_facts['env']"
