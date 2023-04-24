@@ -152,13 +152,18 @@
     - name: Configure Emacs
       ansible.builtin.git:
         repo: git@github.com:gbenson/emacs-config.git
-        dest: ~/.emacs.config
+        dest: ~/.emacs-config
 
     - name: Install ~/.emacs
       ansible.builtin.file:
-        src: .emacs.config/dot.emacs
+        src: .emacs-config/dot.emacs
         dest: ~/.emacs
         state: link
+
+    - name: Remove old Emacs config
+      ansible.builtin.file:
+        path: ~/.emacs.config
+        state: absent
 
     - name: Configure GDB+debuginfod
       block:
