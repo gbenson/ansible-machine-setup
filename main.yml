@@ -94,7 +94,9 @@
           - git
           - gobuster
           - hydra
+          - elpa-dockerfile-mode
           - elpa-lua-mode
+          - elpa-php-mode
           - elpa-yaml-mode
           - moreutils
           - nmap
