@@ -125,6 +125,16 @@
           - mysql-client
       when: ansible_facts["distribution"] == "Ubuntu"
 
+    - name: Install docker-compose wrapper
+      become: yes
+      ansible.builtin.copy:
+        dest: /usr/bin/docker-compose
+        mode: "0755"
+        content: |
+          #!/bin/sh
+          exec /usr/bin/docker compose "$@"
+      when: ansible_facts["distribution"] == "Ubuntu"
+
     - name: Configure grep
       ansible.builtin.lineinfile:
         path: ~/.bash_aliases
