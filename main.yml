@@ -294,3 +294,30 @@
           loop_control:
             label: "{{ item.path|dirname }}"
       when: "'GBENSON_WORK_GIT' in ansible_facts['env']"
+
+    # https://stackoverflow.com/questions/69938570/md4-hashlib-support-in-python-3-8
+    - name: Make Python hashlib have md4
+      block:
+        - name: Activate [default_sect] in openssl.cnf
+          become: yes
+          ansible.builtin.lineinfile:
+            path: /etc/ssl/openssl.cnf
+            regexp: ^#\s*activate\s*=\s*1
+            line: activate = 1
+            insertafter: ^\[default_sect\]
+
+        - name: Add and activate [legacy_sect] in openssl.cnf
+          become: yes
+          ansible.builtin.blockinfile:
+            path: /etc/ssl/openssl.cnf
+            block: |
+              [legacy_sect]
+              activate = 1
+
+        - name: Load [legacy_sect] in openssl.cnf
+          become: yes
+          ansible.builtin.lineinfile:
+            path: /etc/ssl/openssl.cnf
+            line: legacy = legacy_sect
+            insertafter: ^default = default_sect
+      when: "'GBENSON_WORK_GIT' in ansible_facts['env']"
