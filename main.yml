@@ -99,6 +99,7 @@
           - elpa-php-mode
           - elpa-yaml-mode
           - moreutils
+          - mutt
           - nmap
           - openssh-server
           - python2
@@ -176,6 +177,24 @@
       ansible.builtin.file:
         path: ~/.emacs.config
         state: absent
+
+    # XXX needs password
+    #- name: Configure Mutt
+    #  ansible.builtin.git:
+    #    repo: ssh://gbenson.git/git/config/dotmutt
+    #    dest: ~/.mutt
+
+    - name: Set ~/.muttrc permissions
+      ansible.builtin.file:
+        path: ~/.mutt
+        state: directory
+        mode: "0700"
+
+    - name: Install ~/.muttrc
+      ansible.builtin.file:
+        src: .mutt/dot.muttrc
+        dest: ~/.muttrc
+        state: link
 
     - name: Configure GDB+debuginfod
       block:
