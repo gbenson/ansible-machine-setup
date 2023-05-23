@@ -124,6 +124,7 @@
         pkg:
           - apport-retrace
           - gnome-tweaks
+          - guestfs-tools
           - mysql-client
           - virt-manager
       when: ansible_facts["distribution"] == "Ubuntu"
