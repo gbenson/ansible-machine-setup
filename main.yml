@@ -126,7 +126,9 @@
           - gnome-tweaks
           - guestfs-tools
           - mysql-client
+          - iw
           - virt-manager
+          - wireshark
       when: ansible_facts["distribution"] == "Ubuntu"
 
     - name: Install docker-compose wrapper
@@ -178,6 +180,14 @@
       ansible.builtin.user:
         name: "{{ lookup('env', 'USER') }}"
         groups: libvirt
+        append: yes
+      when: ansible_facts["distribution"] == "Ubuntu"
+
+    - name: Configure Wireshark
+      become: yes
+      ansible.builtin.user:
+        name: "{{ lookup('env', 'USER') }}"
+        groups: wireshark
         append: yes
       when: ansible_facts["distribution"] == "Ubuntu"
 
