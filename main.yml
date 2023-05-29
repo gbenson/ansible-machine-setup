@@ -89,6 +89,7 @@
       become: yes
       ansible.builtin.apt:
         pkg:
+          - bind9-dnsutils
           - curl
           - emacs-gtk
           - git
