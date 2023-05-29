@@ -97,6 +97,7 @@
           - hydra
           - elpa-dockerfile-mode
           - elpa-lua-mode
+          - elpa-markdown-mode
           - elpa-php-mode
           - elpa-yaml-mode
           - moreutils
