@@ -1,8 +1,7 @@
 Ansible machine setup
 =====================
 
-Ansible playbook that sets up development machines I use to be
-as like them.
+Ansible playbook to set up development machines I use as I like them.
 
 Initial setup::
 
@@ -13,7 +12,6 @@ Initial setup::
   pip install -r requirements.txt
   ansible-playbook main.yml
 
-To do
------
-* Commit :code:`~/.ssh/authorized_keys` in here (danger?!)
-* Ubuntu machines need :code:`apt install openssh-server`
+Run a subset of tasks::
+
+  ansible-playbook -t redis main.yml
