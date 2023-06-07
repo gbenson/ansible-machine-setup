@@ -9,10 +9,31 @@
     cache_dir: ~/.cache/gbenson/ansible-machine-setup
     fonts_dir: ~/.local/share/fonts
     tic80_desktop_file: /usr/local/share/applications/tic80.desktop
+    secrets_dir: ~/.config/gbenson/secrets
 
   tasks:
     #- debug:
     #    var: ansible_facts
+
+    - name: Lock down various directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        mode: "0700"
+      loop:
+        - ~/.ssh
+        - "{{ secrets_dir }}"
+      tags:
+        - secrets
+
+    - name: Lock down various files
+      ansible.builtin.file:
+        path: "{{ item }}"
+        mode: "og-rwx"
+      loop:
+        - "{{ secrets_dir }}/ansible-machine-setup.vault"
+      tags:
+        - secrets
 
     - name: Install ~/.ssh/authorized_keys
       ansible.posix.authorized_key:
