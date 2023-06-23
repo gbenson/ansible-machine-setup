@@ -133,6 +133,7 @@
           - redis-server
           - ruby-dev
           - ruby-rubygems
+          - tmux
           - whois
       when: ansible_facts["os_family"] == "Debian"
       tags:
