@@ -4,8 +4,9 @@
     dpkg_architecture: "amd64"  # XXX $(dpkg --print-architecture)
     docker_repo_url: "https://download.docker.com/linux/ubuntu"
     docker_keyring_path: "/etc/apt/trusted.gpg.d/docker-keyring.asc"
-    docker_sources_path: "/etc/apt/sources.list.d/docker.list"
     google_keyring_path: "/etc/apt/trusted.gpg.d/google-keyring.asc"
+    hashicorp_repo_url: "https://apt.releases.hashicorp.com"
+    hashicorp_keyring_path: "/etc/apt/trusted.gpg.d/hashicorp-keyring.asc"
     cache_dir: ~/.cache/gbenson/ansible-machine-setup
     fonts_dir: ~/.local/share/fonts
     tic80_desktop_file: /usr/local/share/applications/tic80.desktop
@@ -106,6 +107,24 @@
         name: google-chrome-stable
       when: ansible_facts["distribution"] == "Ubuntu"
 
+    - name: Add HashiCorp package signing key
+      become: yes
+      ansible.builtin.get_url:
+        url: "{{ hashicorp_repo_url }}/gpg"
+        dest: "{{ hashicorp_keyring_path }}"
+
+    - name: Add HashiCorp APT repository
+      become: yes
+      ansible.builtin.apt_repository:
+        repo: >
+          deb [arch={{ dpkg_architecture }}
+          signed-by={{ hashicorp_keyring_path }}]
+          {{ hashicorp_repo_url }}
+          {{ ansible_distribution_release }}
+          main
+        state: present
+        filename: hashicorp
+
     - name: Install packages
       become: yes
       ansible.builtin.apt:
@@ -133,6 +152,7 @@
           - redis-server
           - ruby-dev
           - ruby-rubygems
+          - terraform
           - tmux
           - whois
       when: ansible_facts["os_family"] == "Debian"
