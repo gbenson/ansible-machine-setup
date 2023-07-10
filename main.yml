@@ -125,6 +125,12 @@
         state: present
         filename: hashicorp
 
+    - name: Add Golang Backports APT repository
+      become: yes
+      ansible.builtin.apt_repository:
+        repo: ppa:longsleep/golang-backports
+      when: ansible_facts["distribution"] == "Ubuntu"
+
     - name: Install packages
       become: yes
       ansible.builtin.apt:
@@ -134,9 +140,11 @@
           - emacs-gtk
           - git
           - gobuster
+          - golang
           - hydra
           - elpa-dockerfile-mode
           - elpa-lua-mode
+          - elpa-go-mode
           - elpa-markdown-mode
           - elpa-php-mode
           - elpa-yaml-mode
