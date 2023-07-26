@@ -4,7 +4,7 @@
     argv:
       - grep
       - -l
-      - "{{ ansible_facts['env']['GBENSON_WORK_GIT'] }}/"
+      - "{{ ansible_facts['env']['GBENSON_WORK_GIT'] }}[:/]"
       - "{{ item.path }}/config"
   register: grep
   changed_when: False
