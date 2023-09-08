@@ -135,6 +135,7 @@
       become: yes
       ansible.builtin.apt:
         pkg:
+          - awscli
           - bind9-dnsutils
           - curl
           - emacs-gtk
