@@ -180,8 +180,11 @@
       ansible.builtin.apt:
         pkg:
           - apport-retrace
+          - bridge-utils
+          - dnsmasq
           - gnome-tweaks
           - guestfs-tools
+          - libosinfo-bin
           - mysql-client
           - iw
           - virt-manager
@@ -236,7 +239,7 @@
       become: yes
       ansible.builtin.user:
         name: "{{ lookup('env', 'USER') }}"
-        groups: libvirt
+        groups: libvirt, libvirt-qemu
         append: yes
       when: ansible_facts["distribution"] == "Ubuntu"
 
