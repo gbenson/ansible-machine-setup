@@ -11,6 +11,8 @@
     fonts_dir: ~/.local/share/fonts
     tic80_desktop_file: /usr/local/share/applications/tic80.desktop
     secrets_dir: ~/.config/gbenson/secrets
+  vars_files:
+    - vars/openstack.yml
 
   tasks:
     #- debug:
@@ -26,6 +28,7 @@
         - "{{ secrets_dir }}"
       tags:
         - secrets
+        - openstack
 
     - name: Lock down various files
       ansible.builtin.file:
@@ -274,6 +277,27 @@
       tags:
         - redis
       become: yes
+
+    - block:
+        - name: Install OpenStack credentials
+          ansible.builtin.copy:
+            dest: "{{ secrets_dir }}/openstack-openrc.sh"
+            content: "{{ openstack_openrc_sh }}"
+            mode: "0600"
+
+        - name: Install OpenStack instance private key
+          ansible.builtin.copy:
+            dest: ~/.ssh/id_rsa_openstack
+            content: "{{ openstack_ssh_id_rsa }}"
+            mode: "0600"
+
+        - name: Install OpenStack instance public key
+          ansible.builtin.copy:
+            dest: ~/.ssh/id_rsa_openstack.pub
+            content: "{{ openstack_ssh_id_rsa_pub }}"
+            mode: "0644"
+      tags:
+        - openstack
 
     - name: Configure Emacs
       ansible.builtin.git:
