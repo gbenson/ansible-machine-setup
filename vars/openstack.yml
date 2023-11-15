@@ -351,7 +351,7 @@ openstack_openrc_sh: |
   export {{ openstack_dns_api_key }}
 
   # Instance SSH public key (for Terraform)
-  export TF_VAR_public_key="{{ openstack_ssh_id_rsa_pub
+  export TF_VAR_admin_ssh_key="{{ openstack_ssh_id_rsa_pub
   | regex_replace('^(\S+\s+\S+)\s.*\n', '\1') }}"
 
   # CIDR from which administration may be performed
