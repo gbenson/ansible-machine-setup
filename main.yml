@@ -201,6 +201,12 @@
           exec /usr/bin/docker compose "$@"
       when: ansible_facts["distribution"] == "Ubuntu"
 
+    - name: Install dead-horse
+      ansible.builtin.copy:
+        src: dotfiles/dead-horse.sh
+        dest: ~/.local/bin/dead-horse
+        mode: "0755"
+
     - name: Configure grep
       ansible.builtin.lineinfile:
         path: ~/.bash_aliases
