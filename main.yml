@@ -12,6 +12,7 @@
     tic80_desktop_file: /usr/local/share/applications/tic80.desktop
     secrets_dir: ~/.config/gbenson/secrets
   vars_files:
+    - vars/datalake.yml
     - vars/openstack.yml
 
   tasks:
@@ -240,6 +241,17 @@
         groups: kvm
         append: yes
       when: ansible_facts["distribution"] == "Ubuntu"
+
+    - name: Configure datalake
+      ansible.builtin.copy:
+        dest: "{{ config_file['path'] }}"
+        content: "{{ config_file['content'] }}"
+        mode: "0600"
+      loop: "{{ datalake_config_files }}"
+      loop_control:
+        loop_var: config_file
+      tags:
+        - datalake
 
     - name: Configure libvirt
       become: yes
