@@ -27,9 +27,11 @@
       loop:
         - ~/.ssh
         - "{{ secrets_dir }}"
+        - "{{ datalake_config_dir }}"
       tags:
         - secrets
         - openstack
+        - datalake
 
     - name: Lock down various files
       ansible.builtin.file:
