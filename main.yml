@@ -57,12 +57,14 @@
       ansible.builtin.apt:
         name: docker.io
         state: absent
+      when: '"QUBES_ENV_SOURCED" not in ansible_facts["env"]'
 
     - name: Add Docker package signing key
       become: yes
       ansible.builtin.get_url:
         url: "{{ docker_repo_url }}/gpg"
         dest: "{{ docker_keyring_path }}"
+      when: '"QUBES_ENV_SOURCED" not in ansible_facts["env"]'
 
     - name: Add Docker CE APT repository
       become: yes
@@ -75,6 +77,7 @@
           stable
         state: present
         filename: docker
+      when: '"QUBES_ENV_SOURCED" not in ansible_facts["env"]'
 
     - name: Install Docker
       become: yes
@@ -82,6 +85,7 @@
         pkg:
           - docker-ce
           - docker-compose-plugin
+      when: '"QUBES_ENV_SOURCED" not in ansible_facts["env"]'
 
     - name: Add Chrome package signing key
       become: yes
@@ -113,6 +117,7 @@
       ansible.builtin.get_url:
         url: "{{ hashicorp_repo_url }}/gpg"
         dest: "{{ hashicorp_keyring_path }}"
+      when: '"QUBES_ENV_SOURCED" not in ansible_facts["env"]'
 
     - name: Add HashiCorp APT repository
       become: yes
@@ -125,6 +130,7 @@
           main
         state: present
         filename: hashicorp
+      when: '"QUBES_ENV_SOURCED" not in ansible_facts["env"]'
 
     - name: Add Golang Backports APT repository
       become: yes
@@ -164,14 +170,18 @@
           - terraform
           - tmux
           - whois
-      when: ansible_facts["os_family"] == "Debian"
+      when: >
+        ansible_facts["os_family"] == "Debian"
+        and "QUBES_ENV_SOURCED" not in ansible_facts["env"]
 
     - name: Install Debian-specific packages
       become: yes
       ansible.builtin.apt:
         pkg:
           - default-mysql-client
-      when: ansible_facts["distribution"] == "Debian"
+      when: >
+        ansible_facts["distribution"] == "Debian"
+        and "QUBES_ENV_SOURCED" not in ansible_facts["env"]
 
     - name: Install Ubuntu-specific packages
       become: yes
@@ -204,6 +214,7 @@
         src: dotfiles/dead-horse.sh
         dest: ~/.local/bin/dead-horse
         mode: "0755"
+      when: '"QUBES_ENV_SOURCED" not in ansible_facts["env"]'
 
     - name: Configure grep
       ansible.builtin.lineinfile:
@@ -230,6 +241,7 @@
         name: "{{ lookup('env', 'USER') }}"
         groups: docker
         append: yes
+      when: '"QUBES_ENV_SOURCED" not in ansible_facts["env"]'
 
     - name: Configure KVM
       become: yes
@@ -249,6 +261,7 @@
         loop_var: config_file
       tags:
         - datalake
+      when: '"QUBES_ENV_SOURCED" not in ansible_facts["env"]'
 
     - name: Configure libvirt
       become: yes
@@ -280,6 +293,7 @@
         - redis
         - never
       become: yes
+      when: '"QUBES_ENV_SOURCED" not in ansible_facts["env"]'
 
     - name: Enable and start Redis
       ansible.builtin.systemd:
@@ -291,6 +305,7 @@
         - redis
         - never
       become: yes
+      when: '"QUBES_ENV_SOURCED" not in ansible_facts["env"]'
 
     - block:
         - name: Install OpenStack credentials
@@ -340,12 +355,14 @@
         path: ~/.mutt
         state: directory
         mode: "0700"
+      when: '"QUBES_ENV_SOURCED" not in ansible_facts["env"]'
 
     - name: Install ~/.muttrc
       ansible.builtin.file:
         src: .mutt/dot.muttrc
         dest: ~/.muttrc
         state: link
+      when: '"QUBES_ENV_SOURCED" not in ansible_facts["env"]'
 
     - name: Configure GDB+debuginfod
       block:
