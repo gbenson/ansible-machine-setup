@@ -48,8 +48,8 @@
         user: "{{ lookup('env', 'USER') }}"
         state: present
         key: >
-          {{ lookup('url',
-          'https://github.com/gbenson.keys',
+          {{ lookup('file',
+          'dotfiles/ssh-authorized_keys',
           split_lines=False) }}
 
     - name: Uninstall problem packages
