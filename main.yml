@@ -43,7 +43,6 @@
         mode: "og-rwx"
       loop:
         - "{{ secrets_dir }}/ansible-machine-setup.vault"
-        - ~/.netrc
       tags:
         - secrets
 
