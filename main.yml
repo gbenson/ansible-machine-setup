@@ -14,6 +14,7 @@
     secrets_dir: ~/.config/gbenson/secrets
   vars_files:
     - vars/datalake.yml
+    - vars/hivesite.yml
     - vars/openstack.yml
 
   tasks:
@@ -29,10 +30,12 @@
         - ~/.ssh
         - "{{ secrets_dir }}"
         - "{{ datalake_config_dir }}"
+        - "{{ hivesite_config_dir }}"
       tags:
         - secrets
         - openstack
         - datalake
+        - hivesite
 
     - name: Lock down various files
       ansible.builtin.file:
@@ -254,16 +257,17 @@
         append: yes
       when: ansible_facts["distribution"] == "Ubuntu"
 
-    - name: Configure datalake
+    - name: Configure datalake and hivesite
       ansible.builtin.copy:
         dest: "{{ config_file['path'] }}"
         content: "{{ config_file['content'] }}"
         mode: "0600"
-      loop: "{{ datalake_config_files }}"
+      loop: "{{ datalake_config_files + hivesite_config_files }}"
       loop_control:
         loop_var: config_file
       tags:
         - datalake
+        - hivesite
       when: '"QUBES_ENV_SOURCED" not in ansible_facts["env"]'
 
     - name: Configure libvirt
