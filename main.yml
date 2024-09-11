@@ -15,6 +15,7 @@
   vars_files:
     - vars/datalake.yml
     - vars/hivesite.yml
+    - vars/network.yml
     - vars/openstack.yml
 
   tasks:
@@ -54,6 +55,19 @@
           {{ lookup('file',
           'dotfiles/ssh-authorized_keys',
           split_lines=False) }}
+
+    - name: Configure /etc/hosts
+      become: yes
+      ansible.builtin.lineinfile:
+        path: /etc/hosts
+        line: "{{ addr }}\t{{ names | join(' ') }}"
+      vars:
+        names: "{{ static_hostnames[addr] }}"
+      loop: "{{ static_hostnames | list }}"
+      loop_control:
+        loop_var: addr
+      tags:
+        - network
 
     - name: Uninstall problem packages
       become: yes
