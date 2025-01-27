@@ -8,6 +8,8 @@
     google_keyring_path: "/etc/apt/trusted.gpg.d/google-keyring.asc"
     hashicorp_repo_url: "https://apt.releases.hashicorp.com"
     hashicorp_keyring_path: "/etc/apt/trusted.gpg.d/hashicorp-keyring.asc"
+    intel_graphics_repo_url: "https://repositories.intel.com/gpu"
+    intel_graphics_keyring_path: "/etc/apt/trusted.gpg.d/intel-graphics-keyring.asc"
     cache_dir: ~/.cache/gbenson/ansible-machine-setup
     fonts_dir: ~/.local/share/fonts
     tic80_desktop_file: /usr/local/share/applications/tic80.desktop
@@ -149,6 +151,30 @@
         filename: hashicorp
       when: '"QUBES_ENV_SOURCED" not in ansible_facts["env"]'
 
+    - name: Add Intel Graphics package signing key
+      become: yes
+      ansible.builtin.get_url:
+        url: "{{ intel_graphics_repo_url }}/intel-graphics.key"
+        dest: "{{ intel_graphics_keyring_path }}"
+      tags:
+        - gpu
+      when: ansible_facts["distribution"] == "Ubuntu"
+
+    - name: Add Intel Graphics APT repository
+      become: yes
+      ansible.builtin.apt_repository:
+        repo: >
+          deb [arch={{ dpkg_architecture }}
+          signed-by={{ intel_graphics_keyring_path }}]
+          {{ intel_graphics_repo_url }}/ubuntu
+          {{ ansible_distribution_release }}
+          client
+        state: present
+        filename: intel-graphics
+      tags:
+        - gpu
+      when: ansible_facts["distribution"] == "Ubuntu"
+
     - name: Add Golang Backports APT repository
       become: yes
       ansible.builtin.apt_repository:
@@ -199,14 +225,20 @@
         pkg:
           - apport-retrace
           - bridge-utils
+          - clinfo
           - dnsmasq
           - gnome-tweaks
           - gobuster
           - guestfs-tools
           - hydra
+          - intel-ocloc
+          - intel-opencl-icd
           - iw
           - libosinfo-bin
           - libpcap-dev
+          - libze-intel-gpu1
+          - libze-dev
+          - libze1
           - mysql-client
           - nmap
           - openssh-server
@@ -216,6 +248,8 @@
           - ruby-rubygems
           - virt-manager
           - wireshark
+      tags:
+        - gpu
       when: ansible_facts["distribution"] == "Ubuntu"
 
     - name: Install docker-compose wrapper
