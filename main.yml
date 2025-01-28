@@ -198,6 +198,14 @@
         - gpu
       when: ansible_facts["distribution"] == "Ubuntu"
 
+    - name: Add deadsnakes APT repository
+      become: yes
+      ansible.builtin.apt_repository:
+        repo: ppa:deadsnakes/ppa
+      tags:
+        - gpu
+      when: ansible_facts["distribution"] == "Ubuntu"
+
     - name: Add Golang Backports APT repository
       become: yes
       ansible.builtin.apt_repository:
@@ -268,6 +276,8 @@
           - openssh-server
           - p7zip
           - python2
+          - python3.11
+          - python3.11-venv
           - ruby-dev
           - ruby-rubygems
           - virt-manager
