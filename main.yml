@@ -10,6 +10,8 @@
     hashicorp_keyring_path: "/etc/apt/trusted.gpg.d/hashicorp-keyring.asc"
     intel_graphics_repo_url: "https://repositories.intel.com/gpu"
     intel_graphics_keyring_path: "/etc/apt/trusted.gpg.d/intel-graphics-keyring.asc"
+    intel_oneapi_repo_url: "https://apt.repos.intel.com"
+    intel_oneapi_keyring_path: "/etc/apt/trusted.gpg.d/intel-oneapi-keyring.asc"
     cache_dir: ~/.cache/gbenson/ansible-machine-setup
     fonts_dir: ~/.local/share/fonts
     tic80_desktop_file: /usr/local/share/applications/tic80.desktop
@@ -175,6 +177,27 @@
         - gpu
       when: ansible_facts["distribution"] == "Ubuntu"
 
+    - name: Add Intel oneAPI package signing key
+      become: yes
+      ansible.builtin.get_url:
+        url: "{{ intel_oneapi_repo_url }}/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB"
+        dest: "{{ intel_oneapi_keyring_path }}"
+      tags:
+        - gpu
+      when: ansible_facts["distribution"] == "Ubuntu"
+
+    - name: Add Intel oneAPI APT repository
+      become: yes
+      ansible.builtin.apt_repository:
+        repo: >
+          deb [signed-by={{ intel_oneapi_keyring_path }}]
+          {{ intel_oneapi_repo_url }}/oneapi all main
+        state: present
+        filename: intel-oneapi
+      tags:
+        - gpu
+      when: ansible_facts["distribution"] == "Ubuntu"
+
     - name: Add Golang Backports APT repository
       become: yes
       ansible.builtin.apt_repository:
@@ -232,6 +255,7 @@
           - guestfs-tools
           - hydra
           - intel-ocloc
+          - intel-oneapi-base-toolkit
           - intel-opencl-icd
           - iw
           - libosinfo-bin
