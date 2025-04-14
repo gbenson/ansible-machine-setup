@@ -23,8 +23,11 @@
     - vars/openstack.yml
 
   tasks:
-    #- debug:
-    #    var: ansible_facts
+    - debug:
+        var: ansible_facts
+      tags:
+        - never
+        - debug
 
     - name: Lock down various directories
       ansible.builtin.file:
@@ -160,7 +163,9 @@
         dest: "{{ intel_graphics_keyring_path }}"
       tags:
         - gpu
-      when: ansible_facts["distribution"] == "Ubuntu"
+      when:
+        - ansible_facts["distribution"] == "Ubuntu"
+        - ansible_facts["virtualization_role"] == "host"
 
     - name: Add Intel Graphics APT repository
       become: yes
@@ -175,7 +180,9 @@
         filename: intel-graphics
       tags:
         - gpu
-      when: ansible_facts["distribution"] == "Ubuntu"
+      when:
+        - ansible_facts["distribution"] == "Ubuntu"
+        - ansible_facts["virtualization_role"] == "host"
 
     - name: Add Intel oneAPI package signing key
       become: yes
@@ -184,7 +191,9 @@
         dest: "{{ intel_oneapi_keyring_path }}"
       tags:
         - gpu
-      when: ansible_facts["distribution"] == "Ubuntu"
+      when:
+        - ansible_facts["distribution"] == "Ubuntu"
+        - ansible_facts["virtualization_role"] == "host"
 
     - name: Add Intel oneAPI APT repository
       become: yes
@@ -196,7 +205,9 @@
         filename: intel-oneapi
       tags:
         - gpu
-      when: ansible_facts["distribution"] == "Ubuntu"
+      when:
+        - ansible_facts["distribution"] == "Ubuntu"
+        - ansible_facts["virtualization_role"] == "host"
 
     - name: Add deadsnakes APT repository
       become: yes
@@ -204,7 +215,9 @@
         repo: ppa:deadsnakes/ppa
       tags:
         - gpu
-      when: ansible_facts["distribution"] == "Ubuntu"
+      when:
+        - ansible_facts["distribution"] == "Ubuntu"
+        - ansible_facts["virtualization_role"] == "host"
 
     - name: Add Golang Backports APT repository
       become: yes
@@ -256,28 +269,19 @@
         pkg:
           - apport-retrace
           - bridge-utils
-          - clinfo
           - dnsmasq
           - gnome-tweaks
           - gobuster
           - guestfs-tools
           - hydra
-          - intel-ocloc
-          - intel-oneapi-base-toolkit
-          - intel-opencl-icd
           - iw
           - libosinfo-bin
           - libpcap-dev
-          - libze-intel-gpu1
-          - libze-dev
-          - libze1
           - mysql-client
           - nmap
           - openssh-server
           - p7zip
           - python2
-          - python3.11
-          - python3.11-venv
           - ruby-dev
           - ruby-rubygems
           - virt-manager
@@ -285,6 +289,25 @@
       tags:
         - gpu
       when: ansible_facts["distribution"] == "Ubuntu"
+
+    - name: Install Ubuntu-specific Intel GPU packages
+      become: yes
+      ansible.builtin.apt:
+        pkg:
+          - clinfo
+          - intel-ocloc
+          - intel-oneapi-base-toolkit
+          - intel-opencl-icd
+          - libze-intel-gpu1
+          - libze-dev
+          - libze1
+          - python3.11
+          - python3.11-venv
+      tags:
+        - gpu
+      when:
+        - ansible_facts["distribution"] == "Ubuntu"
+        - ansible_facts["virtualization_role"] == "host"
 
     - name: Install docker-compose wrapper
       become: yes
@@ -301,6 +324,8 @@
         src: dotfiles/dead-horse.sh
         dest: ~/.local/bin/dead-horse
         mode: "0755"
+      tags:
+        - never
       when: '"QUBES_ENV_SOURCED" not in ansible_facts["env"]'
 
     - name: Configure grep
@@ -349,7 +374,9 @@
       tags:
         - datalake
         - hivesite
-      when: '"QUBES_ENV_SOURCED" not in ansible_facts["env"]'
+      when:
+        - '"QUBES_ENV_SOURCED" not in ansible_facts["env"]'
+        - ansible_facts["virtualization_role"] == "host"
 
     - name: Configure libvirt
       become: yes
@@ -357,7 +384,9 @@
         name: "{{ lookup('env', 'USER') }}"
         groups: libvirt, libvirt-qemu
         append: yes
-      when: ansible_facts["distribution"] == "Ubuntu"
+      when:
+        - ansible_facts["distribution"] == "Ubuntu"
+        - ansible_facts["virtualization_role"] == "host"
 
     - name: Configure Wireshark
       become: yes
@@ -365,7 +394,9 @@
         name: "{{ lookup('env', 'USER') }}"
         groups: wireshark
         append: yes
-      when: ansible_facts["distribution"] == "Ubuntu"
+      when:
+        - ansible_facts["distribution"] == "Ubuntu"
+        - ansible_facts["virtualization_role"] == "host"
 
     - name: Configure Redis
       ansible.builtin.lineinfile:
@@ -443,14 +474,18 @@
         path: ~/.mutt
         state: directory
         mode: "0700"
-      when: '"QUBES_ENV_SOURCED" not in ansible_facts["env"]'
+      when:
+        - '"QUBES_ENV_SOURCED" not in ansible_facts["env"]'
+        - ansible_facts["virtualization_role"] == "host"
 
     - name: Install ~/.muttrc
       ansible.builtin.file:
         src: .mutt/dot.muttrc
         dest: ~/.muttrc
         state: link
-      when: '"QUBES_ENV_SOURCED" not in ansible_facts["env"]'
+      when:
+        - '"QUBES_ENV_SOURCED" not in ansible_facts["env"]'
+        - ansible_facts["virtualization_role"] == "host"
 
     - name: Configure GDB+debuginfod
       block:
@@ -507,9 +542,10 @@
             src: "{{ cache_dir }}/lexend.zip"
             dest: "{{ fonts_dir }}"
             include: Lexend-VariableFont_wght.ttf
-      when: >
-        ansible_facts["distribution"] == "Ubuntu"
-        and not lexend_ttf.stat.exists
+      when:
+        - ansible_facts["distribution"] == "Ubuntu"
+        - ansible_facts["virtualization_role"] == "host"
+        - not lexend_ttf.stat.exists
 
     - name: Install TIC-80 build requirements
       become: yes
@@ -595,4 +631,4 @@
             path: /etc/ssl/openssl.cnf
             line: legacy = legacy_sect
             insertafter: ^default = default_sect
-      when: "'GBENSON_WORK_GIT' in ansible_facts['env']"
+      when: ansible_facts["distribution"] == "Ubuntu"
