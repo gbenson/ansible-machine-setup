@@ -17,7 +17,7 @@
     tic80_desktop_file: /usr/local/share/applications/tic80.desktop
     secrets_dir: ~/.config/gbenson/secrets
   vars_files:
-    - vars/datalake.yml
+    - vars/datastore.yml
     - vars/hivesite.yml
     - vars/network.yml
     - vars/openstack.yml
@@ -37,12 +37,12 @@
       loop:
         - ~/.ssh
         - "{{ secrets_dir }}"
-        - "{{ datalake_config_dir }}"
+        - "{{ datastore_config_dir }}"
         - "{{ hivesite_config_dir }}"
       tags:
         - secrets
         - openstack
-        - datalake
+        - datastore
         - hivesite
 
     - name: Lock down various files
@@ -363,16 +363,26 @@
         append: yes
       when: ansible_facts["distribution"] == "Ubuntu"
 
-    - name: Configure datalake and hivesite
+    - name: "Configure {{ datastore_name }}"
       ansible.builtin.copy:
         dest: "{{ config_file['path'] }}"
         content: "{{ config_file['content'] }}"
         mode: "0600"
-      loop: "{{ datalake_config_files + hivesite_config_files }}"
+      loop: "{{ datastore_config_files }}"
       loop_control:
         loop_var: config_file
       tags:
-        - datalake
+        - datastore
+
+    - name: Configure hivesite
+      ansible.builtin.copy:
+        dest: "{{ config_file['path'] }}"
+        content: "{{ config_file['content'] }}"
+        mode: "0600"
+      loop: "{{ hivesite_config_files }}"
+      loop_control:
+        loop_var: config_file
+      tags:
         - hivesite
       when:
         - '"QUBES_ENV_SOURCED" not in ansible_facts["env"]'
