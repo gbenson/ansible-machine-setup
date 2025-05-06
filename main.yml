@@ -1,6 +1,7 @@
 ---
 - hosts: all
   vars:
+    playbook: ansible-machine-setup
     dpkg_architecture: "amd64"  # XXX $(dpkg --print-architecture)
     distro: "{{ ansible_facts['distribution'] | lower }}"
     docker_repo_url: "https://download.docker.com/linux/{{ distro }}"
@@ -12,12 +13,13 @@
     intel_graphics_keyring_path: "/etc/apt/trusted.gpg.d/intel-graphics-keyring.asc"
     intel_oneapi_repo_url: "https://apt.repos.intel.com"
     intel_oneapi_keyring_path: "/etc/apt/trusted.gpg.d/intel-oneapi-keyring.asc"
-    cache_dir: ~/.cache/gbenson/ansible-machine-setup
+    cache_dir: "~/.cache/gbenson/{{ playbook }}"
     fonts_dir: ~/.local/share/fonts
     tic80_desktop_file: /usr/local/share/applications/tic80.desktop
     secrets_dir: ~/.config/gbenson/secrets
   vars_files:
     - vars/datastore.yml
+    - vars/golang.yml
     - vars/hivesite.yml
     - vars/network.yml
     - vars/openstack.yml
@@ -50,7 +52,7 @@
         path: "{{ item }}"
         mode: "og-rwx"
       loop:
-        - "{{ secrets_dir }}/ansible-machine-setup.vault"
+        - "{{ secrets_dir }}/{{ playbook }}.vault"
       tags:
         - secrets
 
@@ -224,6 +226,8 @@
       ansible.builtin.apt_repository:
         repo: ppa:longsleep/golang-backports
       when: ansible_facts["distribution"] == "Ubuntu"
+      tags:
+        - golang
 
     - name: Install packages
       become: yes
@@ -251,6 +255,8 @@
       when: >
         ansible_facts["os_family"] == "Debian"
         and "QUBES_ENV_SOURCED" not in ansible_facts["env"]
+      tags:
+        - golang
 
     - name: Install Debian-specific packages
       become: yes
@@ -342,10 +348,13 @@
 
     - name: Configure git
       ansible.builtin.copy:
-        src: dotfiles/gitconfig
         dest: ~/.gitconfig
         mode: "0644"
-        backup: yes
+        content: |
+          {{ lookup("file", "dotfiles/gitconfig") }}
+          {{ golang_gitconfig }}
+      tags:
+        - golang
 
     - name: Configure Docker
       become: yes
@@ -407,6 +416,15 @@
       when:
         - ansible_facts["distribution"] == "Ubuntu"
         - ansible_facts["virtualization_role"] == "host"
+
+    - name: Configure Go development environment
+      ansible.builtin.lineinfile:
+        path: ~/.profile
+        regexp: '^#?\s*export {{ item["key"] }}\s*='
+        line: "export {{ item['key'] }}={{ item['value'] | quote }}  # {{ playbook }}"
+      loop: "{{ golang_environment | dict2items }}"
+      tags:
+        - golang
 
     - name: Configure Redis
       ansible.builtin.lineinfile:
