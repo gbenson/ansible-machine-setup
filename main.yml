@@ -81,7 +81,9 @@
     - name: Uninstall problem packages
       become: yes
       ansible.builtin.apt:
-        name: docker.io
+        pkg:
+          - awscli
+          - docker.io
         state: absent
       when: '"QUBES_ENV_SOURCED" not in ansible_facts["env"]'
 
@@ -233,7 +235,6 @@
       become: yes
       ansible.builtin.apt:
         pkg:
-          - awscli
           - bind9-dnsutils
           - curl
           - emacs-gtk
