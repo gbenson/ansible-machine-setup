@@ -231,11 +231,20 @@
       tags:
         - golang
 
+    - name: Add Borg Backports APT repository
+      become: yes
+      ansible.builtin.apt_repository:
+        repo: ppa:costamagnagianfranco/borgbackup
+      when: ansible_facts["distribution"] == "Ubuntu"
+      tags:
+        - borg
+
     - name: Install packages
       become: yes
       ansible.builtin.apt:
         pkg:
           - bind9-dnsutils
+          - borgbackup
           - curl
           - emacs-gtk
           - git
@@ -257,6 +266,7 @@
         ansible_facts["os_family"] == "Debian"
         and "QUBES_ENV_SOURCED" not in ansible_facts["env"]
       tags:
+        - borg
         - golang
 
     - name: Install Debian-specific packages
