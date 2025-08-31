@@ -23,6 +23,7 @@
     - vars/hivesite.yml
     - vars/network.yml
     - vars/openstack.yml
+    - vars/borg.yml
 
   tasks:
     - debug:
@@ -406,7 +407,6 @@
         - hivesite
       when:
         - '"QUBES_ENV_SOURCED" not in ansible_facts["env"]'
-        - ansible_facts["virtualization_role"] == "host"
 
     - name: Configure libvirt
       become: yes
@@ -671,3 +671,13 @@
             line: legacy = legacy_sect
             insertafter: ^default = default_sect
       when: ansible_facts["distribution"] == "Ubuntu"
+
+    - name: Borg server is configured
+      ansible.builtin.include_tasks:
+        file: tasks/borg.yml
+        apply:
+          tags:
+            - always
+      tags:
+        - borg
+      when: ansible_facts["fqdn"] == borg_server
