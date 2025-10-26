@@ -16,19 +16,6 @@
     groups:
   become: yes
 
-- name: Backup user's home directory has correct permissions
-  ansible.builtin.file:
-    path: "{{ item }}"
-    state: directory
-    owner: "{{ borg_user }}"
-    group: "{{ borg_group }}"
-    mode: "0700"
-  loop:
-    - "{{ borg_home }}"
-    - "{{ borg_home }}/.ssh"
-    - "{{ borg_repos }}"
-  become: yes
-
 - name: Backup user has ~/.ssh/authorized_keys
   ansible.posix.authorized_key:
     user: "{{ borg_user }}"
@@ -39,13 +26,31 @@
   with_items: "{{ borg_repo_keys }}"
   become: yes
 
-- name: Backup user's ~/.ssh/authorized_keys has correct permissions
+- name: Backup user's home directory has correct permissions
   ansible.builtin.file:
-    path: "{{ borg_home }}/.ssh/authorized_keys"
-    state: file
-    owner: "{{ borg_user }}"
+    path: "{{ item }}"
+    state: directory
+    owner: root
     group: "{{ borg_group }}"
-    mode: "0600"
+    mode: "0710"
+  loop:
+    - "{{ borg_home }}"
+    - "{{ borg_home }}/.ssh"
+    - "{{ borg_repos }}"
+  become: yes
+
+- name: Backup user's home directory files have correct permissions
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: file
+    owner: root
+    group: "{{ borg_group }}"
+    mode: "0640"
+  loop:
+    - "{{ borg_home }}/.bash_logout"
+    - "{{ borg_home }}/.bashrc"
+    - "{{ borg_home }}/.profile"
+    - "{{ borg_home }}/.ssh/authorized_keys"
   become: yes
 
 - name: Backup user's host subdirectories have correct permissions
