@@ -256,6 +256,13 @@
           - elpa-markdown-mode
           - elpa-php-mode
           - elpa-yaml-mode
+          - libgl-dev
+          - libglx-dev
+          - libxcursor-dev
+          - libxi-dev
+          - libxinerama-dev
+          - libxrandr-dev
+          - libxxf86vm-dev
           - moreutils
           - mutt
           - python3-dev
