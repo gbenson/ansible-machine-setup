@@ -258,6 +258,8 @@
           - elpa-yaml-mode
           - libgl-dev
           - libglx-dev
+          - libsdl2-dev
+          - libsdl2-gfx-dev
           - libxcursor-dev
           - libxi-dev
           - libxinerama-dev
