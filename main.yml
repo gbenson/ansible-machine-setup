@@ -108,14 +108,6 @@
         filename: docker
       when: '"QUBES_ENV_SOURCED" not in ansible_facts["env"]'
 
-    - name: Install Docker
-      become: yes
-      ansible.builtin.apt:
-        pkg:
-          - docker-ce
-          - docker-compose-plugin
-      when: '"QUBES_ENV_SOURCED" not in ansible_facts["env"]'
-
     - name: Add Chrome package signing key
       become: yes
       ansible.builtin.get_url:
@@ -133,12 +125,6 @@
           stable main
         state: present
         filename: google-chrome
-      when: ansible_facts["distribution"] == "Ubuntu"
-
-    - name: Install Chrome
-      become: yes
-      ansible.builtin.apt:
-        name: google-chrome-stable
       when: ansible_facts["distribution"] == "Ubuntu"
 
     - name: Add HashiCorp package signing key
@@ -247,6 +233,8 @@
           - bind9-dnsutils
           - borgbackup
           - curl
+          - docker-ce
+          - docker-compose-plugin
           - emacs-gtk
           - git
           - golang
@@ -299,6 +287,7 @@
           - dnsmasq
           - gnome-tweaks
           - gobuster
+          - google-chrome-stable
           - guestfs-tools
           - hydra
           - iw
