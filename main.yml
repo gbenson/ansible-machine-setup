@@ -167,7 +167,7 @@
         url: "{{ intel_graphics_repo_url }}/intel-graphics.key"
         dest: "{{ intel_graphics_keyring_path }}"
       tags:
-        - gpu
+        - never
       when:
         - ansible_facts["distribution"] == "Ubuntu"
         - ansible_facts["virtualization_role"] == "host"
@@ -184,7 +184,7 @@
         state: present
         filename: intel-graphics
       tags:
-        - gpu
+        - never
       when:
         - ansible_facts["distribution"] == "Ubuntu"
         - ansible_facts["virtualization_role"] == "host"
@@ -195,7 +195,7 @@
         url: "{{ intel_oneapi_repo_url }}/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB"
         dest: "{{ intel_oneapi_keyring_path }}"
       tags:
-        - gpu
+        - never
       when:
         - ansible_facts["distribution"] == "Ubuntu"
         - ansible_facts["virtualization_role"] == "host"
@@ -209,7 +209,7 @@
         state: present
         filename: intel-oneapi
       tags:
-        - gpu
+        - never
       when:
         - ansible_facts["distribution"] == "Ubuntu"
         - ansible_facts["virtualization_role"] == "host"
@@ -219,7 +219,7 @@
       ansible.builtin.apt_repository:
         repo: ppa:deadsnakes/ppa
       tags:
-        - gpu
+        - never
       when:
         - ansible_facts["distribution"] == "Ubuntu"
         - ansible_facts["virtualization_role"] == "host"
@@ -313,8 +313,6 @@
           - ruby-rubygems
           - virt-manager
           - wireshark
-      tags:
-        - gpu
       when: ansible_facts["distribution"] == "Ubuntu"
 
     - name: Install Ubuntu-specific Intel GPU packages
@@ -331,7 +329,7 @@
           - python3.11
           - python3.11-venv
       tags:
-        - gpu
+        - never
       when:
         - ansible_facts["distribution"] == "Ubuntu"
         - ansible_facts["virtualization_role"] == "host"
