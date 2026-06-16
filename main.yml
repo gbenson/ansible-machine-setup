@@ -19,7 +19,6 @@
   vars_files:
     - vars/golang.yml
     - vars/hivesite.yml
-    - vars/network.yml
 
   tasks:
     - debug:
@@ -58,19 +57,6 @@
           {{ lookup('file',
           'dotfiles/ssh-authorized_keys',
           split_lines=False) }}
-
-    - name: Configure /etc/hosts
-      become: yes
-      ansible.builtin.lineinfile:
-        path: /etc/hosts
-        line: "{{ addr }}\t{{ names | join(' ') }}"
-      vars:
-        names: "{{ static_hostnames[addr] }}"
-      loop: "{{ static_hostnames | list }}"
-      loop_control:
-        loop_var: addr
-      tags:
-        - network
 
     - name: Uninstall problem packages
       become: yes
