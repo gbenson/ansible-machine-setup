@@ -22,7 +22,6 @@
     - vars/hivesite.yml
     - vars/network.yml
     - vars/openstack.yml
-    - vars/borg.yml
 
   tasks:
     - debug:
@@ -215,20 +214,11 @@
       tags:
         - golang
 
-    - name: Add Borg Backports APT repository
-      become: yes
-      ansible.builtin.apt_repository:
-        repo: ppa:costamagnagianfranco/borgbackup
-      when: ansible_facts["distribution"] == "Ubuntu"
-      tags:
-        - borg
-
     - name: Install packages
       become: yes
       ansible.builtin.apt:
         pkg:
           - bind9-dnsutils
-          - borgbackup
           - curl
           - docker-ce
           - docker-compose-plugin
@@ -262,7 +252,6 @@
         ansible_facts["os_family"] == "Debian"
         and "QUBES_ENV_SOURCED" not in ansible_facts["env"]
       tags:
-        - borg
         - golang
 
     - name: Install Debian-specific packages
@@ -636,13 +625,3 @@
             line: legacy = legacy_sect
             insertafter: ^default = default_sect
       when: ansible_facts["distribution"] == "Ubuntu"
-
-    - name: Borg server is configured
-      ansible.builtin.include_tasks:
-        file: tasks/borg.yml
-        apply:
-          tags:
-            - always
-      tags:
-        - borg
-      when: ansible_facts["fqdn"] == borg_server
