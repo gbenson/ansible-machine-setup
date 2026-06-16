@@ -270,7 +270,6 @@
           - ruby-dev
           - ruby-rubygems
           - virt-manager
-          - wireshark
       when: ansible_facts["distribution"] == "Ubuntu"
 
     - name: Install Ubuntu-specific Intel GPU packages
@@ -378,6 +377,8 @@
         name: "{{ lookup('env', 'USER') }}"
         groups: wireshark
         append: yes
+      tags:
+        - never
       when:
         - ansible_facts["distribution"] == "Ubuntu"
         - ansible_facts["virtualization_role"] == "host"
