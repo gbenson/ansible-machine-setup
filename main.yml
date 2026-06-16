@@ -15,7 +15,6 @@
     intel_oneapi_keyring_path: "/etc/apt/trusted.gpg.d/intel-oneapi-keyring.asc"
     cache_dir: "~/.cache/gbenson/{{ playbook }}"
     fonts_dir: ~/.local/share/fonts
-    tic80_desktop_file: /usr/local/share/applications/tic80.desktop
     secrets_dir: ~/.config/gbenson/secrets
   vars_files:
     - vars/golang.yml
@@ -534,32 +533,6 @@
         - ansible_facts["distribution"] == "Ubuntu"
         - ansible_facts["virtualization_role"] == "host"
         - not lexend_ttf.stat.exists
-
-    - name: Install TIC-80 build requirements
-      become: yes
-      ansible.builtin.apt:
-        pkg:
-          - cmake
-          - freeglut3-dev
-          - g++
-          - libasound2-dev
-          - libglu1-mesa-dev
-          - libglvnd-dev
-          - ruby-full
-      when: ansible_facts["nodename"] == "molly"
-
-    - name: Check whether TIC-80 is installed
-      ansible.builtin.stat:
-        path: "{{ tic80_desktop_file }}"
-      register: tic80_desktop
-
-    - name: Make TIC-80 fullscreen by default
-      become: yes
-      ansible.builtin.lineinfile:
-        path: "{{ tic80_desktop_file }}"
-        regexp: ^Exec=
-        line: Exec=tic80 --fullscreen %U
-      when: tic80_desktop.stat.exists
 
     - name: Install b2 build requirements
       become: yes
