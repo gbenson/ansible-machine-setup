@@ -16,6 +16,7 @@
     cache_dir: "~/.cache/gbenson/{{ playbook }}"
     fonts_dir: ~/.local/share/fonts
     secrets_dir: ~/.config/gbenson/secrets
+    hivesite_config_dir: ~/.config/hive
   vars_files:
     - vars/golang.yml
     - vars/hivesite.yml
@@ -328,7 +329,7 @@
         mode: "0644"
         content: |
           {{ lookup("file", "dotfiles/gitconfig") }}
-          {{ golang_gitconfig }}
+          {{ golang_gitconfig | default('') }}
       tags:
         - golang
 
@@ -353,7 +354,7 @@
         dest: "{{ config_file['path'] }}"
         content: "{{ config_file['content'] }}"
         mode: "0600"
-      loop: "{{ hivesite_config_files }}"
+      loop: "{{ hivesite_config_files | default([])  }}"
       loop_control:
         loop_var: config_file
       tags:
