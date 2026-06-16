@@ -499,6 +499,8 @@
         - "{{ ansible_distribution_release }}"
         - "{{ ansible_distribution_release }}-updates"
         - "{{ ansible_distribution_release }}-security"
+      tags:
+        - never
       when: ansible_facts["distribution"] == "Ubuntu"
 
     - name: Check if Lexend font exists
