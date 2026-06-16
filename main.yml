@@ -239,7 +239,6 @@
           - libxrandr-dev
           - libxxf86vm-dev
           - moreutils
-          - mutt
           - python3-dev
           - python3-venv
           - terraform
@@ -449,30 +448,6 @@
       ansible.builtin.file:
         path: ~/.emacs.config
         state: absent
-
-    # XXX needs password
-    #- name: Configure Mutt
-    #  ansible.builtin.git:
-    #    repo: ssh://gbenson.git/git/config/dotmutt
-    #    dest: ~/.mutt
-
-    - name: Set ~/.muttrc permissions
-      ansible.builtin.file:
-        path: ~/.mutt
-        state: directory
-        mode: "0700"
-      when:
-        - '"QUBES_ENV_SOURCED" not in ansible_facts["env"]'
-        - ansible_facts["virtualization_role"] == "host"
-
-    - name: Install ~/.muttrc
-      ansible.builtin.file:
-        src: .mutt/dot.muttrc
-        dest: ~/.muttrc
-        state: link
-      when:
-        - '"QUBES_ENV_SOURCED" not in ansible_facts["env"]'
-        - ansible_facts["virtualization_role"] == "host"
 
     - name: Configure GDB+debuginfod
       block:
