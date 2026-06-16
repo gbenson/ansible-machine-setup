@@ -534,21 +534,6 @@
         - ansible_facts["virtualization_role"] == "host"
         - not lexend_ttf.stat.exists
 
-    - name: Install b2 build requirements
-      become: yes
-      ansible.builtin.apt:
-        pkg:
-          - libcurl4-openssl-dev
-          - libgl1-mesa-dev
-          - libglvnd-dev
-          - libgtk2.0-dev
-          - libpulse-dev
-          - uuid-dev
-          - libsdl2-dev
-          - libuv1-dev
-          - ninja-build
-      when: ansible_facts["nodename"] == "molly"
-
     # https://stackoverflow.com/questions/69938570/md4-hashlib-support-in-python-3-8
     - name: Make Python hashlib have md4
       block:
