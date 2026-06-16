@@ -21,7 +21,6 @@
     - vars/golang.yml
     - vars/hivesite.yml
     - vars/network.yml
-    - vars/openstack.yml
 
   tasks:
     - debug:
@@ -41,7 +40,6 @@
         - "{{ hivesite_config_dir }}"
       tags:
         - secrets
-        - openstack
         - hivesite
 
     - name: Lock down various files
@@ -436,27 +434,6 @@
         - never
       become: yes
       when: '"QUBES_ENV_SOURCED" not in ansible_facts["env"]'
-
-    - block:
-        - name: Install OpenStack credentials
-          ansible.builtin.copy:
-            dest: "{{ secrets_dir }}/openstack-openrc.sh"
-            content: "{{ openstack_openrc_sh }}"
-            mode: "0600"
-
-        - name: Install OpenStack instance private key
-          ansible.builtin.copy:
-            dest: ~/.ssh/id_rsa_openstack
-            content: "{{ openstack_ssh_id_rsa }}"
-            mode: "0600"
-
-        - name: Install OpenStack instance public key
-          ansible.builtin.copy:
-            dest: ~/.ssh/id_rsa_openstack.pub
-            content: "{{ openstack_ssh_id_rsa_pub }}"
-            mode: "0644"
-      tags:
-        - openstack
 
     - name: Configure Emacs
       ansible.builtin.git:
