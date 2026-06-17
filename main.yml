@@ -256,10 +256,8 @@
           - bridge-utils
           - dnsmasq
           - gnome-tweaks
-          - gobuster
           - google-chrome-stable
           - guestfs-tools
-          - hydra
           - iw
           - libosinfo-bin
           - libpcap-dev
@@ -267,9 +265,6 @@
           - nmap
           - openssh-server
           - p7zip
-          - python2
-          - ruby-dev
-          - ruby-rubygems
           - virt-manager
       when: ansible_facts["distribution"] == "Ubuntu"
 
