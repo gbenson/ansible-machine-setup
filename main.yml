@@ -20,6 +20,7 @@
   vars_files:
     - vars/golang.yml
     - vars/hivesite.yml
+    - vars/secrets.yml
 
   tasks:
     - debug:
@@ -316,6 +317,18 @@
           wagoodman/dive"
         create: yes
 
+    - name: Install API keys
+      ansible.builtin.blockinfile:
+        path: ~/.profile
+        block: |-
+          # from vars/apikeys.yml
+          {% for key, value in environment_secrets.items() | sort %}
+          export {{ key }}={{ value | quote}}
+          {% endfor %}
+        create: yes
+      tags:
+        - XXX
+
     - name: Configure Bash
       ansible.builtin.lineinfile:
         path: ~/.bash_aliases
@@ -350,6 +363,7 @@
           {{ golang_gitconfig | default('') }}
       tags:
         - golang
+        - XXX
 
     - name: Configure Docker
       become: yes
@@ -460,7 +474,8 @@
         - name: Export DEBUGINFOD_URLS
           ansible.builtin.lineinfile:
             path: ~/.profile
-            line: export DEBUGINFOD_URLS="https://debuginfod.ubuntu.com"
+            regexp: '^#?\s*export DEBUGINFOD_URLS\s*='
+            line: 'export DEBUGINFOD_URLS=https://debuginfod.ubuntu.com #  {{ playbook }}'
 
         - name: Enable debuginfod in ~/.gdbinit
           ansible.builtin.lineinfile:
