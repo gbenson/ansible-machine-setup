@@ -306,6 +306,16 @@
         - never
       when: '"QUBES_ENV_SOURCED" not in ansible_facts["env"]'
 
+    - name: Install Dive
+      ansible.builtin.lineinfile:
+        path: ~/.bash_aliases
+        regexp: ^alias\s+dive=
+        line: >-
+          alias dive="docker run -it --rm
+          -v /var/run/docker.sock:/var/run/docker.sock
+          wagoodman/dive"
+        create: yes
+
     - name: Configure Bash
       ansible.builtin.lineinfile:
         path: ~/.bash_aliases
