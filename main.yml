@@ -359,8 +359,7 @@
         dest: ~/.gitconfig
         mode: "0644"
         content: |
-          {{ lookup("file", "dotfiles/gitconfig") }}
-          {{ golang_gitconfig | default('') }}
+          {{ lookup("template", "dotfiles/gitconfig") }}
       tags:
         - golang
         - XXX

@@ -1,6 +1,6 @@
 [user]
 	name = Gary Benson
-	email = gary@gbenson.net
+	email = {{ git_commit_email | default("gary@gbenson.net") }}
 [alias]
 	ci = commit
 	co = checkout
@@ -18,3 +18,5 @@
 	ff = only
 [fetch]
 	prune = true
+
+{{- golang_gitconfig | default('') }}
