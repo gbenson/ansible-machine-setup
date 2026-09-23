@@ -1,0 +1,21 @@
+- python_applications:
+    ansible:
+      - ansible
+      - "ansible-community"
+      - "ansible-config"
+      - "ansible-console"
+      - "ansible-doc"
+      - "ansible-galaxy"
+      - "ansible-inventory"
+      - "ansible-playbook"
+      - "ansible-pull"
+      - "ansible-test"
+      - "ansible-vault"
+
+    circup:
+      - circup
+
+    uf2utils:
+      - "littlefs-python"
+      - uf2extract
+      - uf2info

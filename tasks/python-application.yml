@@ -1,0 +1,14 @@
+---
+- name: "Install {{ package }} wheel"
+  ansible.builtin.pip:
+    name: "{{ package }}"
+    virtualenv: "~/.local/opt/{{ package }}"
+
+- name: "Install {{ package }} scripts"
+  ansible.builtin.file:
+    src: "../opt/{{ package }}/bin/{{ script }}"
+    dest: "~/.local/bin/{{ script }}"
+    state: link
+  loop: "{{ scripts }}"
+  loop_control:
+    loop_var: script

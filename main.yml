@@ -20,6 +20,7 @@
   vars_files:
     - vars/golang.yml
     - vars/hivesite.yml
+    - vars/python-applications.yml
     - vars/secrets.yml
 
   tasks:
@@ -107,6 +108,8 @@
         state: present
         filename: google-chrome
       when: ansible_facts["distribution"] == "Ubuntu"
+      tags:
+        - XXXnever
 
     - name: Add HashiCorp package signing key
       become: yes
@@ -236,6 +239,7 @@
           - terraform
           - tk-dev
           - tmux
+          - virtualenv
           - whois
       when: >
         ansible_facts["os_family"] == "Debian"
@@ -292,6 +296,19 @@
       when:
         - ansible_facts["distribution"] == "Ubuntu"
         - ansible_facts["virtualization_role"] == "host"
+
+    - name: Install Python applications
+      ansible.builtin.include_tasks:
+        file: tasks/python-application.yml
+        apply:
+          tags:
+            - always
+      loop: "{{ python_applications | dict2items }}"
+      vars:
+        package: "{{ item.key }}"
+        scripts: "{{ item.value }}"
+      tags:
+        - python_applications
 
     - name: Install docker-compose wrapper
       become: yes
