@@ -343,13 +343,12 @@
       ansible.builtin.blockinfile:
         path: ~/.profile
         block: |-
-          # from vars/apikeys.yml
+          # from vars/secrets.yml
           {% for key, value in environment_secrets.items() | sort %}
           export {{ key }}={{ value | quote}}
           {% endfor %}
         create: yes
-      tags:
-        - XXX
+      when: (environment_secrets is defined) and (len(environment_secrets) > 0)
 
     - name: Configure Bash
       ansible.builtin.lineinfile:
