@@ -60,6 +60,7 @@
           {{ lookup('file',
           'dotfiles/ssh-authorized_keys',
           split_lines=False) }}
+      when: '"QUBES_ENV_SOURCED" not in ansible_facts["env"]'
 
     - name: Uninstall problem packages
       become: yes
@@ -338,6 +339,7 @@
           -v /var/run/docker.sock:/var/run/docker.sock
           wagoodman/dive"
         create: yes
+      when: '"QUBES_ENV_SOURCED" not in ansible_facts["env"]'
 
     - name: Install API keys
       ansible.builtin.blockinfile:
