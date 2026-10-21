@@ -13,6 +13,10 @@
     intel_graphics_keyring_path: "/etc/apt/trusted.gpg.d/intel-graphics-keyring.asc"
     intel_oneapi_repo_url: "https://apt.repos.intel.com"
     intel_oneapi_keyring_path: "/etc/apt/trusted.gpg.d/intel-oneapi-keyring.asc"
+    launchpad_ppa_url: "https://ppa.launchpadcontent.net"
+    launchpad_key_url: "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x"
+    deadsnakes_keyring_path: "/etc/apt/trusted.gpg.d/deadsnakes.asc"
+    golang_backports_keyring_path: "/etc/apt/trusted.gpg.d/golang-backports.asc"
     cache_dir: "~/.cache/gbenson/{{ playbook }}"
     fonts_dir: ~/.local/share/fonts
     secrets_dir: ~/.config/gbenson/secrets
@@ -71,6 +75,28 @@
         state: absent
       when: '"QUBES_ENV_SOURCED" not in ansible_facts["env"]'
 
+    - name: Install deb822_repository prerequisites
+      become: yes
+      ansible.builtin.apt:
+        pkg:
+          - python3-debian
+      when: '"QUBES_ENV_SOURCED" not in ansible_facts["env"]'
+
+    - name: Remove legacy one-line-style APT sources
+      become: yes
+      ansible.builtin.file:
+        path: "/etc/apt/sources.list.d/{{ item }}.list"
+        state: absent
+      loop:
+        - docker
+        - google-chrome
+        - hashicorp
+        - intel-graphics
+        - intel-oneapi
+        - "ppa_deadsnakes_ppa_{{ ansible_facts['distribution_release'] }}"
+        - "ppa_longsleep_golang_backports_{{ ansible_facts['distribution_release'] }}"
+      register: legacy_apt_sources
+
     - name: Add Docker package signing key
       become: yes
       ansible.builtin.get_url:
@@ -80,15 +106,16 @@
 
     - name: Add Docker CE APT repository
       become: yes
-      ansible.builtin.apt_repository:
-        repo: >
-          deb [arch={{ dpkg_architecture }}
-          signed-by={{ docker_keyring_path }}]
-          {{ docker_repo_url }}
-          {{ ansible_facts["distribution_release"] }}
-          stable
+      ansible.builtin.deb822_repository:
+        name: docker
+        types: deb
+        uris: "{{ docker_repo_url }}"
+        suites: "{{ ansible_facts['distribution_release'] }}"
+        components: stable
+        architectures: "{{ dpkg_architecture }}"
+        signed_by: "{{ docker_keyring_path }}"
         state: present
-        filename: docker
+      register: apt_repo_docker
       when: '"QUBES_ENV_SOURCED" not in ansible_facts["env"]'
 
     - name: Add Chrome package signing key
@@ -100,14 +127,16 @@
 
     - name: Add Chrome APT repository
       become: yes
-      ansible.builtin.apt_repository:
-        repo: >
-          deb [arch={{ dpkg_architecture }}
-          signed-by={{ google_keyring_path }}]
-          https://dl.google.com/linux/chrome/deb/
-          stable main
+      ansible.builtin.deb822_repository:
+        name: google-chrome
+        types: deb
+        uris: https://dl.google.com/linux/chrome/deb/
+        suites: stable
+        components: main
+        architectures: "{{ dpkg_architecture }}"
+        signed_by: "{{ google_keyring_path }}"
         state: present
-        filename: google-chrome
+      register: apt_repo_chrome
       when: ansible_facts["distribution"] == "Ubuntu"
       tags:
         - XXXnever
@@ -121,15 +150,16 @@
 
     - name: Add HashiCorp APT repository
       become: yes
-      ansible.builtin.apt_repository:
-        repo: >
-          deb [arch={{ dpkg_architecture }}
-          signed-by={{ hashicorp_keyring_path }}]
-          {{ hashicorp_repo_url }}
-          {{ ansible_facts["distribution_release"] }}
-          main
+      ansible.builtin.deb822_repository:
+        name: hashicorp
+        types: deb
+        uris: "{{ hashicorp_repo_url }}"
+        suites: "{{ ansible_facts['distribution_release'] }}"
+        components: main
+        architectures: "{{ dpkg_architecture }}"
+        signed_by: "{{ hashicorp_keyring_path }}"
         state: present
-        filename: hashicorp
+      register: apt_repo_hashicorp
       when: '"QUBES_ENV_SOURCED" not in ansible_facts["env"]'
 
     - name: Add Intel Graphics package signing key
@@ -145,15 +175,16 @@
 
     - name: Add Intel Graphics APT repository
       become: yes
-      ansible.builtin.apt_repository:
-        repo: >
-          deb [arch={{ dpkg_architecture }}
-          signed-by={{ intel_graphics_keyring_path }}]
-          {{ intel_graphics_repo_url }}/ubuntu
-          {{ ansible_facts["distribution_release"] }}
-          client
+      ansible.builtin.deb822_repository:
+        name: intel-graphics
+        types: deb
+        uris: "{{ intel_graphics_repo_url }}/ubuntu"
+        suites: "{{ ansible_facts['distribution_release'] }}"
+        components: client
+        architectures: "{{ dpkg_architecture }}"
+        signed_by: "{{ intel_graphics_keyring_path }}"
         state: present
-        filename: intel-graphics
+      register: apt_repo_intel_graphics
       tags:
         - never
       when:
@@ -173,35 +204,85 @@
 
     - name: Add Intel oneAPI APT repository
       become: yes
-      ansible.builtin.apt_repository:
-        repo: >
-          deb [signed-by={{ intel_oneapi_keyring_path }}]
-          {{ intel_oneapi_repo_url }}/oneapi all main
+      ansible.builtin.deb822_repository:
+        name: intel-oneapi
+        types: deb
+        uris: "{{ intel_oneapi_repo_url }}/oneapi"
+        suites: all
+        components: main
+        signed_by: "{{ intel_oneapi_keyring_path }}"
         state: present
-        filename: intel-oneapi
+      register: apt_repo_intel_oneapi
       tags:
         - never
       when:
         - ansible_facts["distribution"] == "Ubuntu"
         - ansible_facts["virtualization_role"] == "host"
+
+    - name: Add deadsnakes package signing key
+      become: yes
+      ansible.builtin.get_url:
+        url: "{{ launchpad_key_url }}F23C5A6CF475977595C89F51BA6932366A755776"
+        dest: "{{ deadsnakes_keyring_path }}"
+      tags:
+        - never
+      when: ansible_facts["distribution"] == "Ubuntu"
 
     - name: Add deadsnakes APT repository
       become: yes
-      ansible.builtin.apt_repository:
-        repo: ppa:deadsnakes/ppa
+      ansible.builtin.deb822_repository:
+        name: deadsnakes
+        types: deb
+        uris: "{{ launchpad_ppa_url }}/deadsnakes/ppa/ubuntu"
+        suites: "{{ ansible_facts['distribution_release'] }}"
+        components: main
+        signed_by: "{{ deadsnakes_keyring_path }}"
+        state: present
+      register: apt_repo_deadsnakes
       tags:
         - never
       when:
         - ansible_facts["distribution"] == "Ubuntu"
         - ansible_facts["virtualization_role"] == "host"
 
+    - name: Add Golang Backports package signing key
+      become: yes
+      ansible.builtin.get_url:
+        url: "{{ launchpad_key_url }}876B22BA887CA91614B5323FC631127F87FA12D1"
+        dest: "{{ golang_backports_keyring_path }}"
+      when: ansible_facts["distribution"] == "Ubuntu"
+
     - name: Add Golang Backports APT repository
       become: yes
-      ansible.builtin.apt_repository:
-        repo: ppa:longsleep/golang-backports
+      ansible.builtin.deb822_repository:
+        name: golang-backports
+        types: deb
+        uris: "{{ launchpad_ppa_url }}/longsleep/golang-backports/ubuntu"
+        suites: "{{ ansible_facts['distribution_release'] }}"
+        components: main
+        signed_by: "{{ golang_backports_keyring_path }}"
+        state: present
+      register: apt_repo_golang_backports
       when: ansible_facts["distribution"] == "Ubuntu"
       tags:
         - golang
+
+    - name: Update APT cache
+      become: yes
+      ansible.builtin.apt:
+        update_cache: yes
+      when: >-
+        legacy_apt_sources is changed
+        or query("ansible.builtin.vars",
+                 "apt_repo_docker",
+                 "apt_repo_chrome",
+                 "apt_repo_hashicorp",
+                 "apt_repo_intel_graphics",
+                 "apt_repo_intel_oneapi",
+                 "apt_repo_deadsnakes",
+                 "apt_repo_golang_backports",
+                 default={})
+           | select("changed") | list | length > 0
 
     - name: Install packages
       become: yes
