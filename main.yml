@@ -485,7 +485,7 @@
 
     - name: Configure Emacs
       ansible.builtin.git:
-        repo: git@github.com:gbenson/emacs-config.git
+        repo: https://github.com/gbenson/emacs-config.git
         dest: ~/.emacs-config
 
     - name: Install ~/.emacs
