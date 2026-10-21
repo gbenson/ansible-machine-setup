@@ -356,7 +356,7 @@
           export {{ key }}={{ value | quote}}
           {% endfor %}
         create: yes
-      when: (environment_secrets is defined) and (len(environment_secrets) > 0)
+      when: (environment_secrets is defined) and (environment_secrets is truthy)
 
     - name: Configure Bash
       ansible.builtin.lineinfile:
