@@ -361,6 +361,7 @@
     - name: Configure Bash
       ansible.builtin.lineinfile:
         path: ~/.bash_aliases
+        regexp: '^#?alias\s*{{ item.key }}='
         line: 'alias {{ item.key }}="{{ item.value }}"'
         create: yes
       loop: "{{ aliases | dict2items }}"
@@ -371,17 +372,19 @@
           cp: cp -i
           mv: mv -i
 
-    - name: Configure grep
-      ansible.builtin.lineinfile:
-        path: ~/.bash_aliases
-        regexp: ^alias\s+grep=
-        line: >-
-          alias grep='grep
-          --color=auto
-          --binary-files=without-match
-          --exclude-dir=.git
-          --exclude-dir=pdoc'
-        create: yes
+          grep: >-
+            grep
+            --color=auto
+            --binary-files=without-match
+            --exclude-dir=.git
+            --exclude-dir=pdoc
+
+          gri: git rebase -i
+          grc: git rebase --continue
+          gca: git commit --amend
+          gcam: git commit --amend -m
+      tags:
+        - aliases
 
     - name: Configure git
       ansible.builtin.copy:
@@ -391,7 +394,6 @@
           {{ lookup("template", "dotfiles/gitconfig") }}
       tags:
         - golang
-        - XXX
 
     - name: Configure Docker
       become: yes
