@@ -118,28 +118,34 @@
       register: apt_repo_docker
       when: '"QUBES_ENV_SOURCED" not in ansible_facts["env"]'
 
-    - name: Add Chrome package signing key
-      become: yes
-      ansible.builtin.get_url:
-        url: https://dl.google.com/linux/linux_signing_key.pub
-        dest: "{{ google_keyring_path }}"
-      when: ansible_facts["distribution"] == "Ubuntu"
+    - name: Check if Chrome APT repository is configured
+      ansible.builtin.stat:
+        path: "/etc/apt/sources.list.d/google-chrome.sources"
+      register: google_chrome_sources
 
-    - name: Add Chrome APT repository
-      become: yes
-      ansible.builtin.deb822_repository:
-        name: google-chrome
-        types: deb
-        uris: https://dl.google.com/linux/chrome/deb/
-        suites: stable
-        components: main
-        architectures: "{{ dpkg_architecture }}"
-        signed_by: "{{ google_keyring_path }}"
-        state: present
-      register: apt_repo_chrome
-      when: ansible_facts["distribution"] == "Ubuntu"
-      tags:
-        - XXXnever
+    - block:
+        - name: Add Chrome package signing key
+          become: yes
+          ansible.builtin.get_url:
+            url: https://dl.google.com/linux/linux_signing_key.pub
+            dest: "{{ google_keyring_path }}"
+          when: ansible_facts["distribution"] == "Ubuntu"
+
+        - name: Add Chrome APT repository
+          become: yes
+          ansible.builtin.deb822_repository:
+            name: google-chrome
+            types: deb
+            uris: https://dl.google.com/linux/chrome/deb/
+            suites: stable
+            components: main
+            architectures: "{{ dpkg_architecture }}"
+            signed_by: "{{ google_keyring_path }}"
+            state: present
+          register: apt_repo_chrome
+      when:
+        - ansible_facts["distribution"] == "Ubuntu"
+        - not google_chrome_sources.stat.exists
 
     - name: Add HashiCorp package signing key
       become: yes
