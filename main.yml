@@ -341,6 +341,12 @@
         create: yes
       when: '"QUBES_ENV_SOURCED" not in ansible_facts["env"]'
 
+    - name: Install print256colors
+      ansible.builtin.copy:
+        src: dotfiles/print256colors.sh
+        dest: ~/.local/bin/print256colors
+        mode: "0755"
+
     - name: Install API keys
       ansible.builtin.blockinfile:
         path: ~/.profile
