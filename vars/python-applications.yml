@@ -15,6 +15,9 @@
     circup:
       - circup
 
+    mpremote:
+      - mpremote
+
     uf2utils:
       - "littlefs-python"
       - uf2extract
